@@ -1,13 +1,15 @@
 
 /*
- * Class Sound: Simple sound generator for Silicon Project.
- * The methods are static so you can go: Sound.tone(hz, msecs) to make a sound.
- * If you must, you can also set the volume too: Sound.tone(hz, msecs, vol).
- * Adapted from some horrible (largely non-functional) code at Stack Overflow.
+ * Class Sound: Simple sound generator for Silicon Project.  It is simple ... Java does all the work.
+ * The methods are declared static so you can go: Sound.tone(int hz, int msecs) to play a sound.
+ * If you must, you can also set the volume: Sound.tone(int hz, int msecs, double vol),where "vol"
+ * is between 0.0d and 1.0d.
+ * This Class was adapted from some horrible (mainly non-functional) code at Stack Overflow.
  * Coding credits(!): "https://stackoverflow.com/a/6700039"
- * The original (kind of) worked at the specific combination of sample rate and frequency it used.
- * But it produced silence at the frequencies normal ears can handle.
- * It also just flicked method-specific errors up-the-chain (don't you hate that?).
+ * The original worked at the specific combination of sample rate and frequency it used 
+ * (for a unique definition of "worked" -- ie. played a completely different frequency).
+ * It also produced silence at the frequencies normal ears can handle.
+ * And it just flicked method-specific errors up-the-chain (don't you hate that?).
  * Our adaptation seems to work for all frequencies, and handles its own errors.  Cough.
  */
 
@@ -23,11 +25,11 @@ public class Sound {
     // This is the entry point for code that just wants to specify frequency and
     // duration - to play notes, see https://pages.mtu.edu/~suits/notefreqs.html
     public static void tone(int hz, int msecs) {
-	tone(hz, msecs, 1.0);
+	tone(hz, msecs, 1.0d);
     }
 
     // This is the entry point for code that wants to specify frequency, duration
-    // and volume (0 ... 1)
+    // and volume (0.0d ... 1.0d)
     public static void tone(int hz, int msecs, double vol) {
 	byte[] buf = new byte[1];
 	AudioFormat af = new AudioFormat(SAMPLE_RATE, 8, 1, true, false);
@@ -64,8 +66,8 @@ public class Sound {
 	    sdl.write(buf, 0, 1);
 	}
 
-	// Nice safe close-down (yes, I actually liked this bit - no data bytes were
-	// harmed during the making of this exit)
+	// Nice safe close-down (yes, I actually liked these 3 lines - no data bytes
+	// were harmed during the making of this exit)
 	sdl.drain();
 	sdl.stop();
 	sdl.close();

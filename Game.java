@@ -52,7 +52,7 @@ public class Game extends Application {
     public void start(Stage stage) throws IOException {
 	this.stage = stage;
 	// Create an Image from our file
-	Image image = new Image("file:src/iconic-photographs-1940-first-computer.jpg");
+	Image image = new Image("file:bin/images/iconic-photographs-1940-first-computer.jpg");
 	// Create a Canvas to draw the GameBoard on
 	Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
 	// Get the graphics context of the Canvas (used for drawing)

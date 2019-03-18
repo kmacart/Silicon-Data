@@ -2,7 +2,7 @@
 
 The following files are included in the Silicon Project:
 + Game.java (top-level Java Class);
-+ Sound.java (simple sound generator - frequency for milliseconds)
++ Sound.java (simple sound generator - frequency for milliseconds, and volume if you must)
 + Game.css (JavaFX .css file with button, and other, styles); and
 + iconic-photographs-1940-first-computer.jpg (background for the main menu).
 

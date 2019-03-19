@@ -104,6 +104,7 @@ public class Game extends Application {
 
     /*
      * mainMenu() method - draws main menu buttons, includes event handlers
+     * Buttons "beep" on press, activate function on release
      */
     private boolean mainMenu() {
 	// Create a VBox to hold our main menu

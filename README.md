@@ -1,7 +1,7 @@
 # Silicon-Data
 
-Message from Duncan\n:
--begins-;
+Message from Duncan:
+[begins];
 The state of the game codebase as of Tuesday evening (25th March):
 + All-in-all, "looking good";
 + Main menu seems fairly stable;

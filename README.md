@@ -1,8 +1,8 @@
 # Silicon-Data
 
-Message from Duncan:
--begins-
-The state of the game codebase as of Monday evening (25th March):
+Message from Duncan:;
+-begins-;
+The state of the game codebase as of Tuesday evening (25th March):
 + All-in-all, "looking good";
 + Main menu seems fairly stable;
 + Tone generator is OK, with some work to do, and I have enlisted Kira (with her musical expertise) to help push this track along; and

@@ -7,10 +7,18 @@ public class Location
    private int xCoord = 500;
    private int yCoord = 380;
    private boolean horizontal = true;
+   private Card owner;
    
    public Location()
    {
 	   
+   }
+   
+   public Location(int xCoord, int yCoord, boolean horizontal)
+   {
+	   this.xCoord = xCoord;
+	   this.yCoord = yCoord;
+	   this.horizontal = horizontal;
    }
    
    int getXCoord()
@@ -41,5 +49,15 @@ public class Location
    void setHorizontal(boolean horizontal)
    {
 	   this.horizontal = horizontal;
+   }
+   
+   Card getOwner()
+   {
+	   return owner;
+   }
+   
+   void setOwner(Card card)
+   {
+	   owner = card;
    }
 }

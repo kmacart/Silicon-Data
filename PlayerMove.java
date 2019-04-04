@@ -7,30 +7,24 @@
 // into research.
 public class PlayerMove
 {
+   // The three types for moveType are 'Buy Card', 'Attack Card' and 'Research'
    private String moveType;
-   private Location location;
+   private Card card;
    private int cost;
-   private Card attackCard;
    private int research;
    
    // The following three constructors represent the three different move
    // types.
-   public PlayerMove(String moveType, Location location, int cost)
+   public PlayerMove(String moveType, Card card, int cost)
    {
-	   System.out.println("PlayerMove object was created.");
 	   this.moveType = moveType;
-	   this.location = location;
+	   this.card = card;
 	   this.cost = cost;
    }
    
-   public PlayerMove(String moveType, Card attackCard)
+   public PlayerMove(String moveType)
    {
-	   this.attackCard = attackCard;
-   }
-   
-   public PlayerMove(String moveType, int research)
-   {
-	   this.research = research;
+	   this.moveType = moveType;
    }
    
    String getMoveType()
@@ -38,19 +32,14 @@ public class PlayerMove
 	   return moveType;
    }
    
-   Location getLocation()
-   {
-	   return location;
-   }
-   
    int getCost()
    {
 	   return cost;
    }
    
-   Card getAttackCard()
+   Card getCard()
    {
-	   return attackCard;
+	   return card;
    }
    
    int getResearch()

@@ -1,4 +1,5 @@
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 // GRP-COSC2635 Michael Power s3162668
 // Card class used to represent the details of a
@@ -11,20 +12,35 @@ public class Card
    private int research = 0;
    private String cardType = "default";
    private Image display;
+   private Image flipSide;
+   private ImageView cardView;
    private Location location = new Location();
+   private Player owner = null;
    
-   public Card(String name)
+   private boolean socialMedia;
+   private boolean robotic;
+   
+   public Card(String name, int revenue, int research, String imageName,
+      boolean socialMedia, boolean robotic)
    {
 	   this.name = name;
+	   this.revenue = revenue;
+	   this.research = research;
+	   location.setOwner(this);
 	   
 	   try
 	   {
-          display = new Image("file:images/card_default.png");
+          flipSide = new Image("images/cards/card.png");
+          display = new Image("images/cards/" + imageName);
+          cardView = new ImageView(flipSide);
 	   } catch (Exception ex)
 	   {
-		   System.out.println("Failed to load card image - check " +
+		   System.out.println("Failed to load card images - check " +
 	          "file system");
 	   }
+	   
+	   this.socialMedia = socialMedia;
+	   this.robotic = robotic;
    }
    
    String getName()
@@ -52,9 +68,53 @@ public class Card
 	   return display;
    }
    
+   Image getFlipSide()
+   {
+	   return flipSide;
+   }
+   
+   ImageView getView()
+   {
+	   return cardView;
+   }
+   
+   void setView(ImageView imageView)
+   {
+	   imageView.setFitWidth(108.0);
+	   imageView.setFitHeight(72.0);
+	   
+	   cardView = imageView;
+   }
+   
    Location getLocation()
    {
 	   return location;
+   }
+   
+   void setLocation(Location location)
+   {
+	   this.location = location;
+	   location.setOwner(this);
+   }
+   
+   Player getOwner()
+   {
+	   return owner;
+   }
+   
+   void setOwner(Player player)
+   {
+	   owner = player;
+   }
+   
+   boolean getSocialMedia()
+   {
+	   return socialMedia;
+   }
+   
+   boolean getRobotic()
+   {
+	   return robotic;
    }
    
 }

@@ -1,3 +1,6 @@
+import java.io.*;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 import javafx.scene.image.Image;
 
 // GRP-COSC2635 Michael Power s3162668
@@ -8,18 +11,84 @@ public class GameState
 {
    private Player[] players;
    private Card[] deck;
+   private int deckPointer;
    private int gameRound;
    private int playerTurn;
-   Image cardFlipSide;
+   
+   private GameControl gameControl;
+   private GameBoard gameBoard;
+   
+   private int numberOfPlayers;
+   private String string;
    
    public GameState(int numberOfPlayers, int deckSize)
    {
 	   // Initialise main variables for the game
-	   players = new Player[numberOfPlayers];
+	   this.numberOfPlayers = numberOfPlayers;
+	   players = new Player[this.numberOfPlayers];
 	   deck = new Card[deckSize];
+	   deckPointer = 0;
 	   gameRound = 1;
 	   // Point the playerTurn variable to the start of the players array
 	   playerTurn = 0;
+   }
+   
+   public String toString()
+   {
+	   
+	   string = "playerTurn," + playerTurn + ",";
+	   string += "gameRound," + gameRound + ",";
+	   
+	   for(Player player: players)
+	   {
+		   string += player.getName() + ",";
+		   string += player.getHuman() + ",";
+		   string += player.getMoney() + ",";
+		   string += player.getResearch() + ",";
+		   string += player.getModuleLevel() + ",";
+		   
+		   ArrayList<Card> cards = player.getCards();
+		   string += cards.size() + ",";
+		   for(Card card: cards)
+		   {
+			   string += card.getName() + ",";
+			   Location location = card.getLocation();
+			   string += location.getXCoord() + ",";
+			   string += location.getYCoord() + ",";
+			   string += location.getHorizontal() + ",";
+		   }
+	   }
+	   
+	   string += "GameLog,";
+	   
+	   ArrayList<String> gameLog = gameControl.getGameLog();
+	   
+	   for(String entry: gameLog)
+	   {
+		   string += entry + ",";
+	   }
+	   
+	   return string;
+   }
+   
+   void saveGame()
+   {
+	   String output = toString();
+	   
+	   try
+	   {
+		   File file = new File("data/save_game.txt");
+		   PrintWriter printWriter = new PrintWriter(file);
+		   printWriter.println(output);
+		   
+		   printWriter.close();
+		   
+		   gameControl.newLogEntry("Game saved to file.");
+		   
+	   } catch(Exception ex)
+	   {
+		   gameControl.newLogEntry("Save error - unable to write to file.");
+	   }
    }
    
    Player[] getPlayers()
@@ -30,6 +99,11 @@ public class GameState
    Card[] getDeck()
    {
 	   return deck;
+   }
+   
+   int getDeckPointer()
+   {
+	   return deckPointer;
    }
    
    int getGameRound()
@@ -53,9 +127,54 @@ public class GameState
 	   }
    }
    
+   void setGameBoard(GameBoard gameBoard)
+   {
+	   this.gameBoard = gameBoard;
+   }
+   
+   void setGameControl(GameControl gameControl)
+   {
+	   this.gameControl = gameControl;
+   }
+   
    void setDeck(Card[] deck)
    {
       this.deck = deck;
+   }
+   
+   void movePointer()
+   {
+	   deckPointer++;
+   }
+   
+   void nextRound()
+   {
+	   gameRound++;
+   }
+   
+   void nextTurn(int playerTurn)
+   {
+	   this.playerTurn = playerTurn;
+   }
+   
+   void setPlayerTurn(int playerTurn)
+   {
+	   this.playerTurn = playerTurn;
+   }
+   
+   void setDeckPointer(int deckPointer)
+   {
+	   this.deckPointer = deckPointer;
+   }
+   
+   void setGameRound(int gameRound)
+   {
+	   this.gameRound = gameRound;
+   }
+   
+   void setPlayers(Player[] players)
+   {
+	   this.players = players;
    }
    
 }

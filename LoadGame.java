@@ -43,7 +43,7 @@ public class LoadGame
 	   
 	   try
 	   {
-		   File file = new File("bin/data/save_game.txt");
+		   File file = new File("data/save_game.txt");
 		   Scanner scanner = new Scanner(file);
 		   loadData = scanner.nextLine();
 		   

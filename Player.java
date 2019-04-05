@@ -1,7 +1,17 @@
 import java.util.ArrayList;
 import javafx.scene.paint.Color;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The player class is used to represent a player in the card game
 // whether human or computer controlled.
 

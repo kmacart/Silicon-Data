@@ -3,7 +3,17 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import javafx.scene.image.Image;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The GameState class is intended to embody the current state of
 // play in the card game - data is managed by the GameControl class.
 
@@ -77,7 +87,7 @@ public class GameState
 	   
 	   try
 	   {
-		   File file = new File("data/save_game.txt");
+		   File file = new File("bin/data/save_game.txt");
 		   PrintWriter printWriter = new PrintWriter(file);
 		   printWriter.println(output);
 		   

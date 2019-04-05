@@ -20,7 +20,18 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-// GRP-COSC2635 Michael Power s3162668
+
+// GRP-COSC2635 2D
+//
+// SILICON - A JavaFX GAME BY:
+// Clark Lavery (mentor)
+// Evert Visser (s3727884)
+// Duncan Baxter (s3737140)
+// Kira Macarthur (s3742864)
+// Dao Kun Nie (s3691571)
+// Michael Power (s3162668)
+// John Zealand-Doyle (s3319550)
+//
 // SiliconGame is the main class of the game that extends from the
 // Application class. It includes the GameControl object that
 // manages the flow of the game.
@@ -30,6 +41,7 @@ public class SiliconGame extends Application
 	private Stage primaryStage;
 	private static GameControl gameControl;
 	private DisplaySetting display;
+	private SettingsScreen settings;
 	
 	// Display related constants and variables are initialised below;
 	final static int DEFAULT_SCREEN_WIDTH = 972;
@@ -42,8 +54,8 @@ public class SiliconGame extends Application
 	
 	public void start(Stage stage)
 	{
-		SiliconGame game = new SiliconGame();
 		display = new DisplaySetting();
+		settings = new SettingsScreen();
 		
 		primaryStage = stage;
 		gameControl = new GameControl(this, primaryStage);
@@ -56,7 +68,7 @@ public class SiliconGame extends Application
         primaryStage.setTitle("Silicon");
 		
 		// Setup the title screen and set the stage
-		primaryStage.setScene(titleScene(game));
+		primaryStage.setScene(titleScene(this));
 		
 		// The following command will remove the window decoration
 		// primaryStage.initStyle(StageStyle.UNDECORATED);
@@ -87,9 +99,9 @@ public class SiliconGame extends Application
 	   
 	   VBox titleButtons = new VBox(18);
 	   titleButtons.setAlignment(Pos.CENTER);
-	   titleButtons.setMinHeight(350);
-	   titleButtons.setMinWidth(300);
-	   titleButtons.setMaxSize(300, 300);
+	   titleButtons.setTranslateY(30.0);
+	   titleButtons.setMinSize(420, 420);
+	   titleButtons.setMaxSize(420, 420);
 	   
 	   // The buttons represent user options at the beginning of the game
 	   Button newGame = new Button("Start New Game");
@@ -98,6 +110,8 @@ public class SiliconGame extends Application
 	   titleButtons.getChildren().add(loadGame);
 	   Button highScores = new Button("High Scores");
 	   titleButtons.getChildren().add(highScores);
+	   Button settings = new Button("Settings");
+	   titleButtons.getChildren().add(settings);
 	   Button quitGame = new Button("Quit Game");
 	   titleButtons.getChildren().add(quitGame);
 	   
@@ -122,6 +136,11 @@ public class SiliconGame extends Application
 		   new Thread(new Tone(262, 100)).start();
 		   loadMessage.setText("");
 		   primaryStage.setScene(highScoreScene(game));
+	   });
+	   settings.setOnAction(e ->
+	   {
+		   new Thread(new Tone(262, 100)).start();
+		   this.settings.showSettings(pane);
 	   });
 	   quitGame.setOnAction(e ->
 	   {
@@ -248,6 +267,11 @@ public class SiliconGame extends Application
    DisplaySetting getDisplaySetting()
    {
 	   return display;
+   }
+   
+   SettingsScreen getSettings()
+   {
+	   return settings;
    }
    
    boolean getGameLoaded()

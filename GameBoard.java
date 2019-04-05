@@ -32,7 +32,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The GameBoard class represents the main game area. It is
 // initiated when the user requests to play a new game. The data for
 // this scene is encapsulated in order to limit complication with
@@ -42,6 +52,7 @@ public class GameBoard
 {
 	private SiliconGame game;
 	private DisplaySetting display;
+	private SettingsScreen settingsScreen;
 	private Scene scene;
 	private Pane cardPane;
 	private Group cardGuideGroup;
@@ -73,6 +84,7 @@ public class GameBoard
 	private TextArea text;
 	private String logEntries;
 	private Button saveButton;
+	private Button settings;
 	private Button returnButton;
 	
 	private LoadGame loadGame;
@@ -115,6 +127,8 @@ public class GameBoard
 	   // Import references to the main stage and GameControl object
 	   this.game = game;
 	   display = new DisplaySetting();
+	   settingsScreen = game.getSettings();
+	   settingsScreen.setGameBoard(this);
 	   stage.setFullScreenExitHint("");
 	   fullScreen = false;
 	   primaryStage = stage;
@@ -336,6 +350,17 @@ public class GameBoard
 		   
 	   });
 	   rightPanel.getChildren().add(saveButton);
+	   
+	   // A button for the game settings
+	   settings = new Button("Settings");
+	   settings.setStyle("-fx-font: 16 Arial; -fx-text-alignment: center");
+	   settings.setOnAction(e ->
+	   {
+		   new Thread(new Tone(262, 100)).start();
+		   
+		   settingsScreen.showSettings(pane);
+	   });
+	   rightPanel.getChildren().add(settings);
 	   
 	   // Add a button that will allow us to return to the main screen
 	   returnButton = new Button("Return to\nMain Menu");
@@ -748,6 +773,50 @@ public class GameBoard
 	   } 
    }
    
+   boolean buyButtonEnabled()
+   {
+	   if(buyCard.isDisabled())
+	   {
+		   return false;
+	   } else
+	   {
+		   return true;
+	   }
+   }
+   
+   boolean attackButtonEnabled()
+   {
+	   if(attackCard.isDisabled())
+	   {
+		   return false;
+	   } else
+	   {
+		   return true;
+	   }
+   }
+   
+   boolean buyResearchEnabled()
+   {
+	   if(buyResearch.isDisabled())
+	   {
+		   return false;
+	   } else
+	   {
+		   return true;
+	   }
+   }
+   
+   boolean saveButtonEnabled()
+   {
+	   if(saveButton.isDisabled())
+	   {
+		   return false;
+	   } else
+	   {
+		   return true;
+	   }
+   }
+   
    void enableBuy()
    {
 	   buyCard.setDisable(false);
@@ -776,6 +845,36 @@ public class GameBoard
    void disableResearch()
    {
 	   buyResearch.setDisable(true);
+   }
+   
+   void enableSave()
+   {
+	   saveButton.setDisable(false);
+   }
+   
+   void disableSave()
+   {
+	   saveButton.setDisable(true);
+   }
+   
+   void enableSettings()
+   {
+	   settings.setDisable(false);
+   }
+   
+   void disableSettings()
+   {
+	   settings.setDisable(true);
+   }
+   
+   void enableReturn()
+   {
+	   returnButton.setDisable(false);
+   }
+   
+   void disableReturn()
+   {
+	   returnButton.setDisable(true);
    }
    
    Rectangle2D getRect(Location location)

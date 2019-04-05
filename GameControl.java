@@ -3,7 +3,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The GameControl class acts as a bridge between the data of the card
 // game and the various display functions. It manages the flow of
 // activity during the game.

@@ -3,7 +3,17 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import javafx.stage.Stage;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The LoadGame class will be able
 // to take text data from the file system
 // and re-compose the game conditions
@@ -33,7 +43,7 @@ public class LoadGame
 	   
 	   try
 	   {
-		   File file = new File("data/save_game.txt");
+		   File file = new File("bin/data/save_game.txt");
 		   Scanner scanner = new Scanner(file);
 		   loadData = scanner.nextLine();
 		   

@@ -1,6 +1,16 @@
 import javafx.scene.paint.Color;
 
-// GRP-COSC2635 Michael Power s3162668
+//GRP-COSC2635 2D
+//
+//SILICON - A JavaFX GAME BY:
+//Clark Lavery (mentor)
+//Evert Visser (s3727884)
+//Duncan Baxter (s3737140)
+//Kira Macarthur (s3742864)
+//Dao Kun Nie (s3691571)
+//Michael Power (s3162668)
+//John Zealand-Doyle (s3319550)
+//
 // The following class is intended to encapsulate aspects of the
 // game rules. The variables/methods of this class represent a
 // reference point for the GameController class in managing the

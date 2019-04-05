@@ -5,7 +5,7 @@ GRP-COSC2635 2D
 Silicon
 -------
 
-updated 040419
+updated 060419
 
 Readme
 
@@ -63,21 +63,22 @@ To compile and run the latest version from the command line:
    the game
 
 -copy all of the following java files to the folder:
-AttackRoll.java
-Card.java
-DisplaySetting.java
-Envelope.java
-GameBoard.java
-GameControl.java
-GameRules.java
-GameState.java
-LoadGame.java
-Location.java
-Player.java
-PlayerMove.java
-SiliconGame.java
-Tone.java
-Twain.java
+AttackRoll.java;
+Card.java;
+DisplaySetting.java;
+Envelope.java;
+GameBoard.java;
+GameControl.java;
+GameRules.java;
+GameState.java;
+LoadGame.java;
+Location.java;
+Player.java;
+PlayerMove.java;
+SettingsScreen.java;
+SiliconGame.java;
+Tone.java;
+Twain.java;
 
 -At the command prompt type:
 javac SiliconGame.java

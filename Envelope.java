@@ -100,14 +100,14 @@ public class Envelope {
 
 	// Sustain phase
 	step = (this.sustain.level - this.decay.level) / (this.sustain.duration * multiplier);
-	for (i = sample; i < this.sustain.duration * multiplier; i++) {
+	for (i = sample; i < sample + this.sustain.duration * multiplier; i++) {
 	    this.envArray[i] = this.envArray[i - 1] + step;
 	}
 	sample = i;
 
 	// Release phase
 	step = (this.release.level - this.sustain.level) / (this.release.duration * multiplier);
-	for (i = sample; i < this.release.duration * multiplier; i++) {
+	for (i = sample; i < sample + this.release.duration * multiplier; i++) {
 	    this.envArray[i] = this.envArray[i - 1] + step;
 	}
     }

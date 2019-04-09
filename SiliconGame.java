@@ -55,7 +55,7 @@ public class SiliconGame extends Application
 	public void start(Stage stage)
 	{
 		display = new DisplaySetting();
-		settings = new SettingsScreen();
+		settings = new SettingsScreen(stage);
 		
 		primaryStage = stage;
 		gameControl = new GameControl(this, primaryStage);

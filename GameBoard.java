@@ -95,11 +95,6 @@ public class GameBoard
 	private Label[] playerNames;
 	private Label[] playerScores;
 	
-	private boolean fullScreen;
-	
-	private Media media;
-	private MediaPlayer mediaPlayer;
-	
 	
 	// Keyboard commands available to use from the gameboard:
 	// shift B to buy a card
@@ -107,6 +102,7 @@ public class GameBoard
 	// shift R to covert gold to research
 	// shift S to save the game
 	// shift F to toggle full screen/windowed mode
+	// shift M to play the music track
 	
 	private final KeyCombination shiftB =
        new KeyCodeCombination(KeyCode.B, KeyCombination.SHIFT_DOWN);
@@ -130,7 +126,6 @@ public class GameBoard
 	   settingsScreen = game.getSettings();
 	   settingsScreen.setGameBoard(this);
 	   stage.setFullScreenExitHint("");
-	   fullScreen = false;
 	   primaryStage = stage;
 	   gameControl = gC;
 	   this.gameLoaded = gameLoaded;
@@ -141,7 +136,20 @@ public class GameBoard
 	   mainDeckYCoord = gameControl.getGameRules().getMainDeckY();
 
 	   primaryStage.setScene(sceneSetup());
-       changeScreen();
+	   if(settingsScreen.getFullScreen())
+	   {
+		   settingsScreen.setFullScreen(false);
+	       settingsScreen.changeScreen();
+	   } else
+	   {
+		   settingsScreen.setFullScreen(true);
+	       settingsScreen.changeScreen();
+	   }
+	   if(settingsScreen.getMusic())
+	   {
+		   settingsScreen.playTrack();
+	   }
+	   
 	   placeDeck();
 	   gameControl.firstRound();	   
    }
@@ -153,7 +161,8 @@ public class GameBoard
 	   this.game = game;
 	   display = new DisplaySetting();
 	   stage.setFullScreenExitHint("");
-	   fullScreen = false;
+	   settingsScreen = game.getSettings();
+	   settingsScreen.setGameBoard(this);
 	   primaryStage = stage;
 	   gameControl = gC;
 	   gameLoaded = true;
@@ -165,7 +174,20 @@ public class GameBoard
 	   mainDeckXCoord = gameControl.getGameRules().getMainDeckX();
 	   mainDeckYCoord = gameControl.getGameRules().getMainDeckY();
 	   primaryStage.setScene(sceneSetup());
-	   changeScreen();
+	   if(settingsScreen.getFullScreen())
+	   {
+		   settingsScreen.setFullScreen(false);
+	       settingsScreen.changeScreen();
+	   } else
+	   {
+		   settingsScreen.setFullScreen(true);
+	       settingsScreen.changeScreen();
+	   }
+	   if(settingsScreen.getMusic())
+	   {
+		   settingsScreen.playTrack();
+	   }
+	   
 	   redrawAllCards();
 	   ArrayList<String> gameLog = gameControl.getGameLog();
 	   for(String entry: gameLog)
@@ -367,6 +389,8 @@ public class GameBoard
 	   returnButton.setStyle("-fx-font: 16 Arial; -fx-text-alignment: center");
 	   returnButton.setOnAction(e ->
 	   {
+		   settingsScreen.stopTrack();
+		   
 		   new Thread(new Tone(262, 100)).start();
 		   
 		   game.start(primaryStage);
@@ -400,10 +424,19 @@ public class GameBoard
 	          buyResearch.fire();
 	       } else if(shiftF.match(e))
 	       {
-	          changeScreen();
+	          settingsScreen.changeScreen();
 	       } else if(shiftM.match(e))
 	       {
-	          playTrack();
+	          // link to settingsScreen class
+	    	  if(settingsScreen.getMusic())
+	    	  {
+	    		  settingsScreen.setMusic(false);
+	    		  settingsScreen.stopTrack();
+	    	  } else
+	    	  {
+	    		  settingsScreen.setMusic(true);
+	    		  settingsScreen.playTrack();
+	    	  }
 	       }
 	   });
 	   
@@ -948,39 +981,4 @@ public class GameBoard
    {
 	   return loadGame;
    }
-   
-   void changeScreen()
-   {
-	   if(fullScreen)
-	   {
-		   primaryStage.setFullScreen(false);
-		   primaryStage.setMaxWidth(972);
-		   primaryStage.setMinWidth(972);
-		   primaryStage.setMaxHeight(677);
-		   primaryStage.setMinHeight(677);
-		   primaryStage.centerOnScreen();
-		   fullScreen = false;
-	   } else
-	   {
-		   primaryStage.setMaxWidth(display.getFullWidth());
-		   primaryStage.setMaxHeight(display.getFullHeight());
-		   primaryStage.setFullScreen(true);
-		   fullScreen = true;
-	   }
-   }
-   
-   void playTrack()
-   {
-	   if(mediaPlayer != null)
-	   {
-		   mediaPlayer.stop();
-	   }
-	   
-	   media = new
-          Media(this.getClass().getResource("sound/Silicon_Theme_Funk.mp3").toString());
-	   mediaPlayer = new MediaPlayer(media);
-	   
-	   mediaPlayer.play();
-   }
-   
 }

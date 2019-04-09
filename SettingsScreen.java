@@ -1,12 +1,21 @@
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 //GRP-COSC2635 2D
 //
@@ -26,30 +35,41 @@ import javafx.scene.layout.VBox;
 
 public class SettingsScreen
 {
+   private Stage primaryStage;
+   private DisplaySetting display;
    private boolean fullScreen;
    private boolean music;
    private String track;
    private GameBoard gameBoard;
    private boolean[] buttonsEnabled = new boolean[4];
+   private Media media;
+   private MediaPlayer mediaPlayer;
    
-   public SettingsScreen()
+   public SettingsScreen(Stage primaryStage)
    {
+	   this.primaryStage = primaryStage;
+	   display = new DisplaySetting();
 	   gameBoard = null;
-	   fullScreen = false;
-	   music = false;
+	   fullScreen = true;
+	   music = true;
 	   track = "sound/Silicon_Theme_Funk.mp3";
    }
    
-   public SettingsScreen(GameBoard gameBoard)
+   public SettingsScreen(GameBoard gameBoard, Stage primaryStage)
    {
 	   this.gameBoard = gameBoard;
-	   fullScreen = false;
-	   music = false;
+	   this.primaryStage = primaryStage;
+	   display = new DisplaySetting();
+	   fullScreen = true;
+	   music = true;
 	   track = "sound/Silicon_Theme_Funk.mp3";
    }
    
    void showSettings(StackPane pane)
    {
+	   
+	   
+	   
 	   if(gameBoard != null)
 	   {
 		   buttonsEnabled[0] = gameBoard.buyButtonEnabled();
@@ -79,6 +99,7 @@ public class SettingsScreen
 	   Label fullScreenLabel = new Label("Full Screen");
 	   fullScreenBox.getChildren().add(fullScreenLabel);
 	   CheckBox fullCheck = new CheckBox();
+	   fullCheck.setSelected(fullScreen);
 	   fullScreenBox.getChildren().add(fullCheck);
 	   vBox.getChildren().add(fullScreenBox);
 	
@@ -88,8 +109,36 @@ public class SettingsScreen
 	   Label musicLabel = new Label("Music");
 	   musicBox.getChildren().add(musicLabel);
 	   CheckBox musicCheck = new CheckBox();
+	   musicCheck.setSelected(music);
 	   musicBox.getChildren().add(musicCheck);
 	   vBox.getChildren().add(musicBox);
+	   
+	   // Add event handlers to change settings if boxes are changed
+	   fullCheck.setOnAction(e ->
+	   {
+		   if(gameBoard != null)
+		   {
+			   fullScreen = fullCheck.isSelected() ? false : true;
+			   changeScreen();
+		   } else
+		   {
+			   fullScreen = fullCheck.isSelected() ? true : false;
+		   }
+	   });
+	   
+	   musicCheck.setOnAction(e ->
+	   {
+		   music = musicCheck.isSelected() ? true : false;
+		   if(gameBoard != null && music)
+		   {
+			   playTrack();
+		   }
+		   
+		   if(!music && (mediaPlayer != null))
+		   {
+			   mediaPlayer.stop();
+		   }
+	   });
 	   
 	   // Add a button that will allow us to return to the main screen
 	   Button returnButton = new Button("Return");
@@ -155,4 +204,49 @@ public class SettingsScreen
    {
 	   this.gameBoard = gameBoard;
    }
+   
+   void changeScreen()
+   {
+	   if(gameBoard == null) return;
+	   
+	   if(fullScreen)
+	   {
+		   primaryStage.setFullScreen(false);
+		   primaryStage.setMaxWidth(972);
+		   primaryStage.setMinWidth(972);
+		   primaryStage.setMaxHeight(677);
+		   primaryStage.setMinHeight(677);
+		   primaryStage.centerOnScreen();
+		   fullScreen = false;
+	   } else
+	   {
+		   primaryStage.setMaxWidth(display.getFullWidth());
+		   primaryStage.setMaxHeight(display.getFullHeight());
+		   primaryStage.setFullScreen(true);
+		   fullScreen = true;
+	   }
+   }
+   
+   void playTrack()
+   {
+	   if(mediaPlayer != null)
+	   {
+		   mediaPlayer.stop();
+	   }
+	   
+	   media = new
+          Media(this.getClass().getResource("sound/Silicon_Theme_Funk.mp3").toString());
+	   mediaPlayer = new MediaPlayer(media);
+	   
+	   mediaPlayer.play();
+   }
+   
+   void stopTrack()
+   {
+	   if(mediaPlayer != null)
+	   {
+		   mediaPlayer.stop();
+	   }
+   }
+   
 }

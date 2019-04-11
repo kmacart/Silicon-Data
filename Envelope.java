@@ -51,6 +51,20 @@ public class Envelope {
 	createEnvArray();
     }
 
+    // Alternative constructor for Envelope Class - requires 2 arrays of 5 elements each:
+    // array[0] is ignored, then Attack[1], Decay[2], Sustain[3] and Release[4]
+    public Envelope(int[] durations, double[] levels) {
+	attack.duration = durations[1];
+	attack.level = levels[1];
+	decay.duration = durations[2];
+	decay.level = levels[2];
+	sustain.duration = durations[3];
+	sustain.level = levels[3];
+	release.duration = durations[4];
+	release.level = levels[4];
+	createEnvArray();
+    }
+
     // Alternative constructor for Envelope Class - requires Attack, Decay, Sustain,
     // Hold and Release. Attack, Decay, Hold and Release are all durations
     // (in milliseconds). Sustain is a level (0.0d ... 1.0d).

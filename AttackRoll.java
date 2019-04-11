@@ -134,6 +134,46 @@ public class AttackRoll
 	   }
    }
    
+   void randomCompAttack()
+   {
+	   int choices = targets.size();
+	   
+	   int choice = (int)(Math.random() * choices);
+	   
+	   Location targetLocation = targets.get(choice);
+	   
+	   Card targetCard = targetLocation.getOwner();
+	   
+	   ArrayList<Card> attackCards = new ArrayList<Card>();
+	   
+	   for(Location attackerLocation: locations)
+	   {
+		   Rectangle2D locationRect = gameBoard.getRect(targetLocation);
+		   Rectangle2D attackerRect =
+		      gameBoard.getRect(attackerLocation);
+		   if(locationRect.intersects(attackerRect))
+		   {
+			   Card attackerCard = attackerLocation.getOwner();
+			   attackCards.add(attackerCard);
+		   }
+		   
+	   }
+	   Card attacker = attackCards.get(0);
+	   if(attackCards.size() > 1)
+	   {
+		   for(Card attackCard: attackCards)
+		   {
+			   if(attackCard.getRevenue() > attacker.getRevenue())
+			   {
+				   attacker = attackCard;
+			   }
+		   }
+	   }
+	   
+	   rollDice(attacker, targetCard);
+	   
+   }
+   
    void rollDice(Card attacker, Card defender)
    {
 	   int attackerStrength = Math.max(attacker.getRevenue(),

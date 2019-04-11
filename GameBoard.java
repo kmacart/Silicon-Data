@@ -738,6 +738,80 @@ public class GameBoard
 	   return false;
    }
    
+   boolean canPlaceCard(Location newLocation)
+   {
+	   ArrayList<Location> locations = gameControl.checkPlayerLocations();
+ 	   
+ 	   Rectangle2D cardRect = getRect(newLocation);
+ 	  
+ 	   for(Location location: locations)
+ 	   {
+ 	 	   double playerCardWidth = location.getHorizontal()
+ 	 	      ? 108.0 : 72.0; 
+ 	 	   double playerCardHeight = location.getHorizontal()
+ 	 	      ? 72.0 : 108.0;
+ 	 	   double playerXCoord = location.getXCoord();
+ 	 	   double playerYCoord = location.getYCoord();
+ 	 	   if(!location.getHorizontal())
+ 	 	   {
+ 	 	      playerXCoord += 18.0;
+ 	 	      playerYCoord -= 18.0;
+ 	 	   }
+ 	 	   
+ 	 	   Rectangle2D cardZone = new Rectangle2D(playerXCoord -
+ 	 			 cardLayoutMargin, playerYCoord - cardLayoutMargin,
+ 	 			 playerCardWidth + cardLayoutMargin * 2.0,playerCardHeight +
+ 	 			 cardLayoutMargin * 2.0);
+ 	 	   
+ 		   if(cardRect.intersects(cardZone))
+ 		   {
+ 			   for(Location otherLocation: locations)
+ 			   {
+ 				   Rectangle2D otherCard = getRect(otherLocation);
+ 				   if(cardRect.intersects(otherCard))
+ 				   {
+ 					   return false;
+ 				   }
+ 			   }
+ 			   
+ 			   // Also check that the card is not over the center deck
+ 			   Rectangle2D center = getRect(new Location(mainDeckXCoord,
+ 			      mainDeckYCoord, true));
+ 			   if(cardRect.intersects(center)) return false;
+ 			   
+ 			   return true;
+ 		   }
+ 	   }
+	   return false;
+   }
+   
+   boolean isWithinBoard(Location location)
+   {
+	   boolean withinBoard = true;
+	   
+	   if(location.getHorizontal())
+	   {
+		   if(location.getXCoord() < 0 ||
+		      location.getYCoord() < 0 ||
+		      location.getXCoord() + 144 > 684 ||
+		      location.getYCoord() + 108 > 684)
+		   {
+			   withinBoard = false;
+		   }
+	   } else
+	   {
+		   if(location.getXCoord() < -18 ||
+		      location.getYCoord() < 18 ||
+			  location.getXCoord() + 126 > 684 ||
+			  location.getYCoord() + 126 > 684)
+		   {
+		       withinBoard = false;
+		   }
+	   }
+	   
+	   return withinBoard;
+   }
+   
    void handleRightClick()
    {
 	   if(selectedCardLocation.getHorizontal())

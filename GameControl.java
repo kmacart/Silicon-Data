@@ -189,11 +189,11 @@ public class GameControl
 	   
 	   if(playerMove.getMoveType().equals("Buy Card"))
 	   {
-		   player.setMoney(player.getMoney() - 10);
+		   player.setMoney(player.getMoney() - playerMove.getCost());
 		   player.addCard(playerMove.getCard());
 		   newLogEntry(players[playerTurn].getName() +
 		      " has purchased the " + playerMove.getCard().getName() +
-		      " for 10 gold pieces.");
+		      " for " + playerMove.getCost() + " gold pieces.");
 		   gameState.movePointer();
 		   
 	   } else if(playerMove.getMoveType().equals("Attack Card"))
@@ -256,26 +256,32 @@ public class GameControl
 			   gameBoard.drawScores();
 		   }
 		   
-		   newLogEntry(players[playerTurn].getName() + " choose an option.");
-		   attack = new AttackRoll(gameBoard, this,
-		      players[playerTurn]);
-		   attack.canAttack();
-		   if((gameState.getDeckPointer() >= gameRules.getNumberOfCards() - 1)
-		      || (players[playerTurn].getMoney() < 10))
+		   if(players[playerTurn].getHuman())
 		   {
-			   gameBoard.disableBuy();
+			   newLogEntry(players[playerTurn].getName() + " choose an option.");
+			   attack = new AttackRoll(gameBoard, this,
+			      players[playerTurn]);
+			   attack.canAttack();
+			   if((gameState.getDeckPointer() >= gameRules.getNumberOfCards() - 1)
+			      || (players[playerTurn].getMoney() < 10))
+			   {
+				   gameBoard.disableBuy();
+			   } else
+			   {
+				   gameBoard.enableBuy();
+			   }
+			   if(canBuyResearch())
+			   {
+				   gameBoard.enableResearch();
+			   } else
+			   {
+				   gameBoard.disableResearch();
+			   }
 		   } else
 		   {
-			   gameBoard.enableBuy();
+			   newLogEntry(players[playerTurn].getName() + " to move.");
+			   updateGameState(computerTurn());
 		   }
-		   if(canBuyResearch())
-		   {
-			   gameBoard.enableResearch();
-		   } else
-		   {
-			   gameBoard.disableResearch();
-		   }
-		   
 	   }
    }
    
@@ -364,7 +370,150 @@ public class GameControl
    
    PlayerMove computerTurn()
    {
-	   PlayerMove compMove = new PlayerMove("buyCard", null, 10);
+	   PlayerMove compMove = null;
+	   boolean[] choices = new boolean[3];
+	   
+	   choices[0] = canBuy();
+	   
+	   attack = new AttackRoll(gameBoard, this,
+	      players[playerTurn]);
+	   
+	   choices[1] = attack.canAttack();
+	   
+	   choices[2] = canBuyResearch();
+	   
+	   int moveChoice = 3;
+	   while(moveChoice == 3)
+	   {
+		   moveChoice = (int)(Math.random() * 3);
+		   if(!choices[moveChoice])
+		   {
+			   moveChoice = 3;
+		   }
+	   }
+	   
+	   if(moveChoice == 0)
+	   {
+		   boolean canPlace = false;
+		   Card card = gameState.getDeck()[gameState.getDeckPointer()];
+		   
+		   ArrayList<Location> locations = checkPlayerLocations();
+		   
+		   Location location = new Location(0, 0, true);
+		   while(!canPlace)
+		   {
+			   int randomCardIndex = (int)(Math.random() * locations.size());
+			   Location lastLocation = locations.get(randomCardIndex);
+			   
+			   location.setXCoord(lastLocation.getXCoord());
+			   location.setYCoord(lastLocation.getYCoord());
+			   
+			   int orientation = (int)(Math.random() * 2);
+			   if(orientation == 0)
+			   {
+				   location.setHorizontal(true);
+			   } else if(orientation == 1)
+			   {
+				   location.setHorizontal(false);
+			   }
+			   
+			   int direction = (int)(Math.random() * 4) + 1;
+			   if(direction == 1)
+			   {
+				   if(location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() - 108);
+				   } else if(location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() - 90);
+					   location.setYCoord(location.getYCoord() - 18);
+				   } else if(!location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() - 90);
+					   location.setYCoord(location.getYCoord() - 18);
+				   } else if(!location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() - 72);
+				   }
+			   } else if(direction == 2)
+			   {
+				   if(location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() - 72);
+				   } else if(location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() - 90);
+				   } else if(!location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() - 90);
+				   } else if(!location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() - 108);
+				   }
+			   } else if(direction == 3)
+			   {
+				   if(location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() + 108);
+				   } else if(location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() + 90);
+					   location.setYCoord(location.getYCoord() - 18);
+				   } else if(!location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() + 90);
+					   location.setYCoord(location.getYCoord() - 18);
+				   } else if(!location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setXCoord(location.getXCoord() + 72);
+				   }
+			   } else if(direction == 4)
+			   {
+				   if(location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() + 72);
+				   } else if(location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() + 90);
+				   } else if(!location.getHorizontal() && lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() + 90);
+				   } else if(!location.getHorizontal() && !lastLocation.getHorizontal())
+				   {
+					   location.setYCoord(location.getYCoord() + 108);
+				   }
+			   }
+			   
+			   canPlace = gameBoard.canPlaceCard(location);
+			   
+			   if(canPlace)
+			   {
+			      canPlace = gameBoard.isWithinBoard(location);
+			      if(!canPlace)
+			      {
+				      location.setXCoord(lastLocation.getXCoord());
+				      location.setYCoord(lastLocation.getYCoord());
+				      location.setHorizontal(lastLocation.getHorizontal());
+			      }
+			   }
+		   }
+	       
+		   gameBoard.placeCard(location);
+		   card.setLocation(location);
+		   
+		   compMove = new PlayerMove("Buy Card", card, 10);
+	   } else if(moveChoice == 1)
+	   {
+		   newLogEntry(players[playerTurn].getName() + " attacks!");
+		   
+		   attack.randomCompAttack();
+		   
+		   compMove = new PlayerMove("Attack Card");
+		   
+	   } else if(moveChoice == 2)
+	   {
+		   compMove = new PlayerMove("Research");
+	   }
 	   
 	   return compMove;
    }
@@ -386,9 +535,18 @@ public class GameControl
 	   for(int i = 0; i < gameRules.getNumberOfPlayers(); i++)
 	   {
 		   Player player = new Player(getGameRules().getColours(i));
-		   player.setName("Player" + (i + 1));
-		   player.setMoney(gameRules.getStartingMoney());
-		   player.setHuman(true);
+		   if(i == 0)
+		   {
+			   player.setName("Player" + (i + 1));
+			   player.setMoney(gameRules.getStartingMoney());
+			   player.setHuman(true);
+		   } else
+		   {
+			   player.setName("RandomAI" + i);
+			   player.setMoney(gameRules.getStartingMoney());
+			   player.setHuman(false);
+		   }
+
 		   gameState.addPlayer(i, player);
 	   }
 	   
@@ -553,7 +711,8 @@ public class GameControl
    
    boolean canBuy()
    {   
-	   return players[playerTurn].getMoney() >= 10;
+	   return (players[playerTurn].getMoney() >= 10) &&
+	      (gameState.getDeckPointer() < gameRules.getNumberOfCards());
    }
    
    boolean canBuyResearch()

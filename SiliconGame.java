@@ -99,9 +99,9 @@ public class SiliconGame extends Application
 	   
 	   VBox titleButtons = new VBox(18);
 	   titleButtons.setAlignment(Pos.CENTER);
-	   titleButtons.setTranslateY(30.0);
-	   titleButtons.setMinSize(420, 420);
-	   titleButtons.setMaxSize(420, 420);
+	   titleButtons.setTranslateY(50.0);
+	   titleButtons.setMinSize(420, 480);
+	   titleButtons.setMaxSize(420, 480);
 	   
 	   // The buttons represent user options at the beginning of the game
 	   Button newGame = new Button("Start New Game");
@@ -112,6 +112,8 @@ public class SiliconGame extends Application
 	   titleButtons.getChildren().add(highScores);
 	   Button settings = new Button("Settings");
 	   titleButtons.getChildren().add(settings);
+	   Button credits = new Button("Credits");
+	   titleButtons.getChildren().add(credits);
 	   Button quitGame = new Button("Quit Game");
 	   titleButtons.getChildren().add(quitGame);
 	   
@@ -141,6 +143,11 @@ public class SiliconGame extends Application
 	   {
 		   new Thread(new Tone(262, 100)).start();
 		   this.settings.showSettings(pane);
+	   });
+	   credits.setOnAction(e ->
+	   {
+		   new Thread(new Tone(262, 100)).start();
+		   primaryStage.setScene(creditsScene(game));
 	   });
 	   quitGame.setOnAction(e ->
 	   {
@@ -261,6 +268,41 @@ public class SiliconGame extends Application
 			   returnMainMenu.fire();
 		   }
 	   });
+	   return scene;
+   }
+   
+   Scene creditsScene(SiliconGame game)
+   {
+	   StackPane pane = new StackPane();
+	   
+	   try
+	   {
+	       Image backGround = new Image("images/credits.jpg");
+	       ImageView imageView = new ImageView(backGround);
+	       imageView.setFitWidth(DEFAULT_SCREEN_WIDTH);
+	       imageView.setFitHeight(DEFAULT_SCREEN_HEIGHT);
+	       pane.getChildren().add(imageView);
+	   } catch (Exception ex)
+	   {
+	       System.out.println("Unable to load image - check file system.");
+	       ex.printStackTrace();
+	   }
+	   
+	   Button returnMainMenu = new Button("Return to Main Menu");
+	   returnMainMenu.getStylesheets().add("data/Game.css");
+	   returnMainMenu.setStyle("-fx-font: 20 Arial");
+	   returnMainMenu.setAlignment(Pos.CENTER);
+	   returnMainMenu.setTranslateY(220.0);
+	   returnMainMenu.setOnAction(e->
+	   {
+		  new Thread(new Tone(262, 100)).start();
+	      primaryStage.setScene(titleScene(game));
+	   });
+	   
+	   pane.getChildren().add(returnMainMenu);
+	   
+	   Scene scene = new Scene(pane);
+	   
 	   return scene;
    }
    

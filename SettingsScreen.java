@@ -88,10 +88,10 @@ public class SettingsScreen
 	   
 	   VBox vBox = new VBox(20);
 	   vBox.setAlignment(Pos.CENTER);
-	   vBox.setTranslateY(30.0);
-	   vBox.setMinSize(420, 420);
-	   vBox.setMaxSize(420, 420);
-	   vBox.getStylesheets().add("data/Game.css");
+	   vBox.setTranslateY(50.0);
+	   vBox.setMinSize(420, 480);
+	   vBox.setMaxSize(420, 480);
+	   vBox.getStylesheets().add("data/Settings.css");
 	   
 	   // Example of settings to include - not yet functional
 	   HBox fullScreenBox = new HBox(150);

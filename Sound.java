@@ -25,12 +25,12 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -43,6 +43,13 @@ public class Sound extends Application {
     Envelope env;
     int duration;
     Button btNew;
+    String[] names = { "Attack (ms)", "Attack (volume)", "Decay (ms)", "Decay (volume)", "Sustain (ms)",
+	    "Sustain (volume)", "Release (ms)", "Release (volume)" };
+    String[] labelText = { "ATTACK\n(ms)", "ATTACK\n(volume)", "DECAY\n(ms)", "DECAY\n(volume)", "SUSTAIN\n(ms)",
+	    "SUSTAIN\n(volume)", "RELEASE\n(ms)", "RELEASE\n(volume)" };
+    int[] durations = { 0, 50, 50, 50, 50 };
+    int[] positions = { 0, 50, 100, 150, 200 };
+    double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 };
 
     /*
      * The usual "main" method - this code is only executed on platforms that lack
@@ -80,11 +87,6 @@ public class Sound extends Application {
      * createGridPane() method: creates GridPane, 3 Tabs and their contents.
      */
     private boolean createGridPane() {
-	String[] names = { "Attack (ms)", "Attack (vol)", "Decay (ms)", "Decay (vol)", "Sustain (ms)", "Sustain (vol)",
-		"Release (ms)", "Release (vol)" };
-	int[] durations = { 0, 50, 50, 50, 50 };
-	int[] positions = { 0, 50, 100, 150, 200 };
-	double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 };
 
 	// Create a GridPane to hold the MiNiSYNTH
 	root = new GridPane();
@@ -95,96 +97,75 @@ public class Sound extends Application {
 
 	// Create the "MiNiSYNTH" logo
 	// Load the logo into an ImageView and add it to the GridPane
-	ImageView iv = new ImageView("file:src/MiNiSYNTH.png");
+	ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("MiNiSYNTH.png")));
+	iv.setPreserveRatio(true);
 	root.add(iv, 0, 0, 4, 1);
 
 	// Create a VBox to hold the Wave radio buttons
 	VBox vbWave = new VBox();
-	vbWave.setId("VBox");
-	Label lWave = new Label("Waves\n[To Do]");
+	vbWave.setId("VBox-buttons");
+	Label lWave = new Label("WAVES\n[To Do]");
 	vbWave.getChildren().add(lWave);
 	root.add(vbWave, 4, 0, 2, 1);
 
 	// Create a VBox to hold the Note radio buttons
 	VBox vbNote = new VBox();
-	vbNote.setId("VBox");
-	Label lNote = new Label("Notes\n[To Do]");
+	vbNote.setId("VBox-buttons");
+	Label lNote = new Label("NOTES\n[To Do]");
 	vbNote.getChildren().add(lNote);
 	root.add(vbNote, 6, 0, 2, 1);
 
-	// Defining the x axis
+	// Define the x and y axis
 	NumberAxis xAxis = new NumberAxis();
-	xAxis.setLabel("Milliseconds");
-
-	// Defining the y axis
+	xAxis.setLabel("MILLISECONDS");
 	NumberAxis yAxis = new NumberAxis(0.0, 1.00, 0.25);
-	yAxis.setLabel("Amplitude");
+	yAxis.setLabel("AMPLITUDE");
 
-	// Prepare XYChart.Series objects by setting data
+	// Prepare XYChart.Series objects by setting data elements
 	XYChart.Series<Integer, Double> series = new XYChart.Series<>();
-	series.setName("ADSR Envelope");
+	series.setName("ADSR PARAMETERS");
 	for (int i = 0; i < 5; i++) {
 	    series.getData().add(new Data<Integer, Double>(positions[i], levels[i]));
 	}
 
-	// Creating the line chart
+	// Create the Line Chart and add to the GridPane
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	LineChart<Integer, Double> linechart = new LineChart(xAxis, yAxis);
 	linechart.getData().add(series);
+	linechart.setTitle("ADSR ENVELOPE");
 	root.add(linechart, 0, 1, 4, 1);
 
 	// Create a TextArea to display the active Envelope settings
-	duration = 0;
-	String str = "Active Envelope Settings\n------------------------";
-	for (int i = 0; i < 4; i++) {
-	    str += String.format("\n%-15s%9d", names[i * 2], durations[i + 1]);
-	    str += String.format("\n%-15s%9.2f", names[i * 2 + 1], levels[i + 1]);
-	    duration += durations[i + 1];
-	}
-	str += "\n------------------------";
-	str += String.format("\n%-15s%9d", "TOTAL TIME (ms)", duration);
-	str += "\n========================";
-	TextArea ta = new TextArea(str);
+	TextArea ta = new TextArea(updateTable());
 	ta.setEditable(false);
 	root.add(ta, 4, 1, 2, 1);
 
 	// Create the 3 x Buttons
-	Button btEnv = new Button("Set envelope");
+	Button btEnv = new Button("SET ENVELOPE");
 	btEnv.setTooltip(new Tooltip("Press this button to update the ADSR Envelope with the current settings"));
 	btEnv.setOnAction(ae -> {
+	    ta.setText(updateTable());
 	    env = new Envelope(durations, levels);
-	    duration = 0;
-	    String s = "Active Envelope Settings\n------------------------";
-	    for (int i = 0; i < 4; i++) {
-		s += String.format("\n%-15s%9d", names[i * 2], durations[i + 1]);
-		s += String.format("\n%-15s%9.2f", names[i * 2 + 1], levels[i + 1]);
-		duration += durations[i + 1];
-	    }
-	    s += "\n------------------------";
-	    s += String.format("\n%-15s%9d", "TOTAL TIME (ms)", duration);
-	    s += "\n========================";
-	    ta.setText(s);
 	});
 
-	btNew = new Button("Play tone");
+	btNew = new Button("PLAY TONE");
 	btNew.setTooltip(new Tooltip("Press this button to play a Tone with the current settings"));
 	btNew.setOnMousePressed(me -> new Thread(new Tone(262, duration)).start());
 	btNew.setOnAction(ae -> {
 	    System.out.println("Play");
 	});
 
-	Button btExit = new Button("Exit");
+	Button btExit = new Button("EXIT");
 	btExit.setTooltip(new Tooltip("Press this button when you've had enough"));
 	btExit.setOnAction(ae -> System.exit(0));
 
 	// Create a VBox to hold the buttons
 	VBox vb = new VBox();
-	vb.setId("VBox");
+	vb.setId("VBox-buttons");
 	vb.getChildren().addAll(btEnv, btNew, btExit);
 	root.add(vb, 6, 1, 2, 1);
 
-	// Create the 8 x Labels (one for each Slider)
-	String[] labelText = { "Attack\n(ms)", "Attack\n(volume)", "Decay\n(ms)", "Decay\n(volume)", "Sustain\n(ms)",
-		"Sustain\n(volume)", "Release\n(ms)", "Release\n(volume)" };
+	// Create the 8 x TextFields, Sliders and Labels
 	for (int i = 0; i < 8; i++) {
 	    final int index = 1 + i / 2;
 	    final boolean isDuration = (i % 2 == 0);
@@ -194,6 +175,7 @@ public class Sound extends Application {
 	    root.getColumnConstraints().add(cc);
 	    Slider s;
 	    TextField t;
+	    Label l = new Label(labelText[i]);
 
 	    // Set parameters for "duration" variables
 	    if (isDuration) {
@@ -224,11 +206,10 @@ public class Sound extends Application {
 	    }
 	    t.setEditable(false);
 
-	    // Create the 8 x Labels
-	    Label l = new Label(labelText[i]);
-	    root.add(t, i, 2);
-	    root.add(s, i, 3);
-	    root.add(l, i, 4);
+	    // Create a VBox to hold the TextField, Slider and Label for a variable
+	    VBox v = new VBox(t, s, l);
+	    v.setId("VBox-variable");
+	    root.add(v, i, 2);
 	}
 
 	// Set Grid-lines-visible during debug
@@ -237,5 +218,29 @@ public class Sound extends Application {
 	// Signal that we need to layout the GridPane (ie. the Nodes are done)
 	root.needsLayoutProperty();
 	return true;
+    }
+
+    /*
+     * updateTable(): Format and display the active envelope settings. Used to
+     * initialise the TextArea (ta) and when Button (btnEnv) is pressed. Returns the
+     * formatted settings as a String.
+     */
+    private String updateTable() {
+	duration = 0;
+	String str = "========================";
+	str += "\nACTIVE ENVELOPE SETTINGS";
+	str += "\n------------------------";
+	for (int i = 0; i < 4; i++) {
+	    str += String.format("\n%-16s%8d", names[i * 2], durations[i + 1]);
+	    duration += durations[i + 1];
+	}
+	str += "\n------------------------";
+	str += String.format("\n%-16s%8d", "TOTAL TIME (ms)", duration);
+	str += "\n========================";
+	for (int i = 0; i < 4; i++) {
+	    str += String.format("\n%-16s%8.2f", names[i * 2 + 1], levels[i + 1]);
+	}
+	str += "\n========================";
+	return str;
     }
 }

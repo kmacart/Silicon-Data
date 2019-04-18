@@ -12,7 +12,10 @@
  * Duncan can answer queries in relation to this Class.
  */
 
+import java.io.File;
+
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -31,22 +34,26 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 /*
  * Top-level Class for the tool
  */
 public class Sound extends Application {
-    Stage stage;
-    GridPane root;
-    Envelope env;
-    int duration;
-    Button btPlay;
-    String[] names = { "Origin", "Attack", "Decay", "Sustain", "Release" };
-    int[] durations = { 0, 50, 50, 50, 50 };
-    int[] positions = { 0, 50, 100, 150, 200 };
-    double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 };
+    Stage stage; // Stage for JavaFX application
+    public static GridPane root; // Root node for the application - a GridPane
+    Envelope env; // Global storage for the active Envelope
+    int duration; // Total duration of the current settings
+    Button btPlay; // Global storage for the "Play a tone" button
+    String[] names = { "Origin", "Attack", "Decay", "Sustain", "Release" }; // Names for the 4 phases
+    int[] durations = { 0, 50, 50, 50, 50 }; // Initial durations of the 4 phases
+    int[] positions = { 0, 50, 100, 150, 200 }; // Cumulative durations of the 4 phases
+    double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 }; // Volume levels for the 4 phases
+    Tune loaded = new Tune("Heroes.mp3");
 
     /*
      * The usual "main" method - this code is only executed on platforms that lack
@@ -58,21 +65,21 @@ public class Sound extends Application {
 
     /*
      * JavaFX Application thread automatically calls start() method. The parameter
-     * Stage stage is our top-level window, then Scene scene, TabPane root, and all
+     * Stage stage is our top-level window, then Scene scene, GridPane root, and all
      * the other Nodes. This method is quite short: it just creates the GUI.
      * 
      * @see javafx.application.Application#start(javafx.stage.Stage)
      */
     @Override
-    public void start(Stage stage) {
-	this.stage = stage;
+    public void start(Stage primaryStage) {
+	stage = primaryStage;
 	// Set the Style for the primary Stage
 	stage.initStyle(StageStyle.DECORATED);
 	// Set the title of the primary Stage
 	stage.setTitle("MiNiSYNTH");
-	// Create the GridPane, 3 Tabs and their contents
+	// Create the GridPane and its contents
 	createGridPane();
-	// Create a Scene based on the TabPane with no background fill
+	// Create a Scene based on the GridPane with a dark grey background
 	Scene scene = new Scene(root, Color.DIMGRAY);
 	// Add the Scene to the primary Stage and resize
 	stage.setScene(scene);
@@ -81,10 +88,9 @@ public class Sound extends Application {
     }
 
     /*
-     * createGridPane() method: creates GridPane, 3 Tabs and their contents.
+     * createGridPane() method: creates GridPane and its contents.
      */
     private boolean createGridPane() {
-
 	// Create a GridPane to hold the MiNiSYNTH
 	root = new GridPane();
 	root.getStyleClass().add("grid-pane");
@@ -92,8 +98,8 @@ public class Sound extends Application {
 	// Load the JavaFX CSS StyleSheet
 	root.getStylesheets().add(getClass().getResource("SoundStyles.css").toString());
 
-	// Create the "MiNiSYNTH" logo
-	// Load the logo into an ImageView and add it to the GridPane
+	// Load the "MiNiSYNTH" logo as a new Image resource into an ImageView and add
+	// it to the GridPane
 	ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("MiNiSYNTH.png")));
 	iv.setPreserveRatio(true);
 	root.add(iv, 0, 0, 4, 1);
@@ -105,13 +111,9 @@ public class Sound extends Application {
 	vbWave.getChildren().add(lWave);
 	root.add(vbWave, 4, 0, 2, 1);
 
-	// Create a VBox to hold the Note radio buttons
-	VBox vbNote = new VBox();
-	vbNote.setId("VBox-buttons");
-	Label lNote = new Label("NOTES\n[To Do]");
-	vbNote.getChildren().add(lNote);
-	root.add(vbNote, 6, 0, 2, 1);
-
+	// 
+	createMP3player();
+	
 	// Define the x and y NumberAxis
 	NumberAxis xAxis = new NumberAxis();
 	xAxis.setLabel("MILLISECONDS");
@@ -125,7 +127,7 @@ public class Sound extends Application {
 	    series.getData().add(new Data<Integer, Double>(positions[i], levels[i]));
 	}
 
-	// Create the Line Chart and add to the GridPane
+	// Create the Line Chart and add it to the GridPane
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	LineChart<Integer, Double> linechart = new LineChart(xAxis, yAxis);
 	linechart.getData().add(series);
@@ -154,7 +156,7 @@ public class Sound extends Application {
 	btExit.setTooltip(new Tooltip("Press this button when you've had enough"));
 	btExit.setOnAction(ae -> System.exit(0));
 
-	// Create a VBox to hold the buttons
+	// Create a VBox to hold the 3 x Buttons
 	VBox vb = new VBox();
 	vb.setId("VBox-buttons");
 	vb.getChildren().addAll(btEnv, btPlay, btExit);
@@ -172,7 +174,7 @@ public class Sound extends Application {
 	    TextField t;
 	    Label l;
 
-	    // Set parameters for "duration" variables
+	    // Set unique parameters for the 4 x "duration" variables
 	    if (isDuration) {
 		s = new Slider(0, 100, durations[index]);
 		s.setMajorTickUnit(25.0f);
@@ -188,19 +190,20 @@ public class Sound extends Application {
 		    }
 		});
 
-		// Set parameters for "level" (i.e. volume) variables
+		// Set unique parameters for the 4 x "level" (i.e. volume) variables
 	    } else {
 		s = new Slider(0.0, 1.0, levels[index]);
 		s.setMajorTickUnit(0.25f);
 		s.setBlockIncrement(0.1f);
-		t = new TextField(String.format("%.2f", s.getValue()));
+		t = new TextField();
+		t.textProperty().bind(Bindings.format("%.2f", s.valueProperty()));
 		l = new Label(names[index] + "\n(volume)");
 		s.valueProperty().addListener((ov, oldValue, newValue) -> {
 		    levels[index] = newValue.doubleValue();
-		    t.setText(String.format("%.2f", levels[index]));
 		    series.getData().set(index, new XYChart.Data<Integer, Double>(positions[index], levels[index]));
 		});
 	    }
+	    // Set shared parameters for the 8 x variables (most are set in the CSS file)
 	    t.setEditable(false);
 
 	    // Create a VBox to hold the TextField, Slider and Label for a variable
@@ -218,9 +221,9 @@ public class Sound extends Application {
     }
 
     /*
-     * updateTable(): Format and display the active envelope settings. Used to
-     * initialise the TextArea (ta) and when Button (btnEnv) is pressed. Returns the
-     * formatted settings as a String.
+     * updateTable(): Format and display the active envelope settings. This method
+     * is used to initialise the TextArea (ta), and whenever Button (btnEnv) is
+     * pressed. Returns the formatted settings as a String.
      */
     private String updateTable() {
 	duration = 0;
@@ -240,4 +243,126 @@ public class Sound extends Application {
 	str += "\n========================";
 	return str;
     }
+
+    private void createMP3player() {
+	// Create a GridPane to hold the mp3player
+	GridPane gp = new GridPane();
+	gp.setId("grid-pane-small");
+
+	// Set Grid-lines-visible during debug
+	// gp.setGridLinesVisible(true);
+
+	// Create the duration control Slider
+	Slider sTime = new Slider();
+	sTime.setId("TimeSlider");
+	sTime.setTooltip(new Tooltip("Use this Slider to control playback duration"));
+	sTime.setMajorTickUnit(1.0f);
+	sTime.setBlockIncrement(0.5f);
+	gp.add(sTime, 0, 0, 4, 1);
+
+	// Create the volume control Slider
+	Slider sVol = new Slider(0.0, 1.0, loaded.mp.getVolume());
+	sVol.setId("VolSlider");
+	sVol.setTooltip(new Tooltip("Use this Slider to control playback volume"));
+	sVol.setMajorTickUnit(0.25f);
+	sVol.setBlockIncrement(0.1f);
+	sVol.valueProperty().addListener((ov, oldValue, newValue) -> {
+	    loaded.mp.setVolume(newValue.doubleValue());
+	});
+	gp.add(sVol, 0, 2, 4, 1);
+
+	// Define all 7 x Buttons - this is needed up-front because they replace
+	// themselves with each other
+	Button btEject = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Eject.png"))));
+	btEject.setId("button-round");
+	btEject.setTooltip(new Tooltip("Press this button to select a new mp3"));
+
+	Button btBack = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Backward.png"))));
+	btBack.setId("button-round");
+	btBack.setTooltip(new Tooltip("Press this button to skip backwards 30 seconds"));
+
+	Button bt2Start = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Back2Start.png"))));
+	bt2Start.setId("button-round");
+	bt2Start.setTooltip(new Tooltip("Press this button to restart the mp3"));
+
+	Button btPlay = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Play.png"))));
+	btPlay.setId("button-round");
+	btPlay.setTooltip(new Tooltip("Press this button to start playback"));
+
+	Button btStop = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Stop.png"))));
+	btStop.setId("button-round");
+	btStop.setTooltip(new Tooltip("Press this button to stop playback"));
+
+	Button btFwd = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Forward.png"))));
+	btFwd.setId("button-round");
+	btFwd.setTooltip(new Tooltip("Press this button to skip forwards 30 seconds"));
+
+	Button bt2End = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Forward2End.png"))));
+	bt2End.setId("button-round");
+	bt2End.setTooltip(new Tooltip("Press this button to skip to the end of the mp3"));
+
+	// Define actions for all 7 x Buttons
+	// Actions for "Eject" Button (at 0, 1)
+	btEject.setOnAction(ae -> {
+	    FileChooser fc = new FileChooser();
+	    fc.setTitle("Select a new mp3");
+	    fc.getExtensionFilters().addAll(new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+		    new ExtensionFilter("All Files", "*.*"));
+	    File f = fc.showOpenDialog(stage);
+	    if (f != null) {
+		loaded.mp.stop();
+		loaded = new Tune(f);
+	    }
+	});
+
+	// Actions for "Seek Backwards" Button (at 1, 1)
+	btBack.setOnAction(ae -> {
+	    loaded.mp.seek(loaded.mp.getCurrentTime().subtract(Duration.seconds(30.0d)));
+	    gp.getChildren().remove(btBack);
+	    gp.add(bt2Start, 1, 1);
+	});
+
+	// Actions for "Seek to Start" Button (at 1, 1)
+	bt2Start.setOnAction(ae -> {
+	    loaded.mp.seek(loaded.mp.getStartTime());
+	    gp.getChildren().remove(bt2Start);
+	    gp.add(btBack, 1, 1);
+	});
+
+	// Actions for "Play" Button (at 2, 1)
+	btPlay.setOnAction(ae -> {
+	    loaded.mp.play();
+	    if (loaded.mp.getOnReady()!= null) {
+		loaded.mp.startTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMin(newValue.toMinutes()));
+		loaded.mp.stopTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMax(newValue.toMinutes()));
+	    }
+	    gp.getChildren().remove(btPlay);
+	    gp.add(btStop, 2, 1);
+	});
+
+	// Actions for "Stop" Button (at 2, 1)
+	btStop.setOnAction(ae -> {
+	    loaded.mp.stop();
+	    gp.getChildren().remove(btStop);
+	    gp.add(btPlay, 2, 1);
+	});
+
+	// Actions for "Seek Forwards" Button (at 3, 1)
+	btFwd.setOnAction(ae -> {
+	    loaded.mp.seek(loaded.mp.getCurrentTime().add(Duration.seconds(30.0d)));
+	    gp.getChildren().remove(btFwd);
+	    gp.add(bt2End, 3, 1);
+	});
+
+	// Actions for "Seek to End" Button (at 3, 1)
+	bt2End.setOnAction(ae -> {
+	    loaded.mp.seek(loaded.mp.getStopTime());
+	    gp.getChildren().remove(bt2End);
+	    gp.add(btFwd, 3, 1);
+	});
+	gp.addRow(1, btEject, btBack, btPlay, btFwd);
+
+	Sound.root.add(gp, 6, 0, 2, 1);
+    }
+
 }

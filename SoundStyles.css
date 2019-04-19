@@ -82,6 +82,7 @@
 
 #VBox-variable {
 	-fx-alignment: center;
+	-fx-pref-height:17em;
 	-fx-padding: 5px;
 	-fx-spacing: 5px;
 	-fx-border-style: solid inside line-join round, solid inside line-join round;

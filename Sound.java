@@ -55,7 +55,7 @@ public class Sound extends Application {
     int[] durations = { 0, 50, 50, 50, 50 }; // Initial durations of the 4 phases
     int[] positions = { 0, 50, 100, 150, 200 }; // Cumulative durations of the 4 phases
     double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 }; // Volume levels for the 4 phases
-    Tune loaded = new Tune("resources/Heroes.mp3");
+    Tune loaded = new Tune("resources/Silicon_Theme_Funk.mp3");
 
     /*
      * The usual "main" method - this code is only executed on platforms that lack

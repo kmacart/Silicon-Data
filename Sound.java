@@ -15,6 +15,7 @@
 import java.io.File;
 
 import javafx.application.Application;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.scene.Scene;
@@ -46,6 +47,7 @@ import javafx.util.Duration;
 public class Sound extends Application {
     Stage stage; // Stage for JavaFX application
     public static GridPane root; // Root node for the application - a GridPane
+    public static GridPane gp; // Node for the mp3player - a GridPane
     Envelope env; // Global storage for the active Envelope
     int duration; // Total duration of the current settings
     Button btPlay; // Global storage for the "Play a tone" button
@@ -53,7 +55,7 @@ public class Sound extends Application {
     int[] durations = { 0, 50, 50, 50, 50 }; // Initial durations of the 4 phases
     int[] positions = { 0, 50, 100, 150, 200 }; // Cumulative durations of the 4 phases
     double[] levels = { 0.0, 1.0, 0.75, 0.5, 0 }; // Volume levels for the 4 phases
-    Tune loaded = new Tune("Heroes.mp3");
+    Tune loaded = new Tune("resources/Heroes.mp3");
 
     /*
      * The usual "main" method - this code is only executed on platforms that lack
@@ -111,9 +113,9 @@ public class Sound extends Application {
 	vbWave.getChildren().add(lWave);
 	root.add(vbWave, 4, 0, 2, 1);
 
-	// 
+	//
 	createMP3player();
-	
+
 	// Define the x and y NumberAxis
 	NumberAxis xAxis = new NumberAxis();
 	xAxis.setLabel("MILLISECONDS");
@@ -246,26 +248,35 @@ public class Sound extends Application {
 
     private void createMP3player() {
 	// Create a GridPane to hold the mp3player
-	GridPane gp = new GridPane();
+	gp = new GridPane();
 	gp.setId("grid-pane-small");
 
 	// Set Grid-lines-visible during debug
 	// gp.setGridLinesVisible(true);
 
 	// Create the duration control Slider
-	Slider sTime = new Slider();
-	sTime.setId("TimeSlider");
-	sTime.setTooltip(new Tooltip("Use this Slider to control playback duration"));
-	sTime.setMajorTickUnit(1.0f);
-	sTime.setBlockIncrement(0.5f);
-	gp.add(sTime, 0, 0, 4, 1);
+	loaded.mp.setOnReady(() -> {
+	    Slider sTime = new Slider(loaded.mp.getStartTime().toMinutes(), loaded.mp.getStopTime().toMinutes(),
+		    loaded.mp.getCurrentTime().toMinutes());
+	    sTime.setId("TimeSlider");
+	    sTime.setTooltip(new Tooltip("Use this Slider to control playback duration"));
+	    InvalidationListener sliderChangeListener = o -> loaded.mp.seek(Duration.minutes(sTime.getValue()));
+	    sTime.valueProperty().addListener(sliderChangeListener);
+	    loaded.mp.startTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMin(newValue.toMinutes()));
+	    loaded.mp.stopTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMax(newValue.toMinutes()));
+	    loaded.mp.currentTimeProperty().addListener(l -> {
+		sTime.valueProperty().removeListener(sliderChangeListener);
+		sTime.setValue(loaded.mp.getCurrentTime().toMinutes());
+		sTime.valueProperty().addListener(sliderChangeListener);
+	    });
+	    gp.add(sTime, 0, 0, 4, 1);
+	    root.needsLayoutProperty();
+	});
 
 	// Create the volume control Slider
 	Slider sVol = new Slider(0.0, 1.0, loaded.mp.getVolume());
 	sVol.setId("VolSlider");
 	sVol.setTooltip(new Tooltip("Use this Slider to control playback volume"));
-	sVol.setMajorTickUnit(0.25f);
-	sVol.setBlockIncrement(0.1f);
 	sVol.valueProperty().addListener((ov, oldValue, newValue) -> {
 	    loaded.mp.setVolume(newValue.doubleValue());
 	});
@@ -332,10 +343,6 @@ public class Sound extends Application {
 	// Actions for "Play" Button (at 2, 1)
 	btPlay.setOnAction(ae -> {
 	    loaded.mp.play();
-	    if (loaded.mp.getOnReady()!= null) {
-		loaded.mp.startTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMin(newValue.toMinutes()));
-		loaded.mp.stopTimeProperty().addListener((ov, oldValue, newValue) -> sTime.setMax(newValue.toMinutes()));
-	    }
 	    gp.getChildren().remove(btPlay);
 	    gp.add(btStop, 2, 1);
 	});
@@ -361,8 +368,6 @@ public class Sound extends Application {
 	    gp.add(btFwd, 3, 1);
 	});
 	gp.addRow(1, btEject, btBack, btPlay, btFwd);
-
-	Sound.root.add(gp, 6, 0, 2, 1);
+	root.add(gp, 6, 0, 2, 1);
     }
-
 }

@@ -38,7 +38,11 @@ public class Tune implements Runnable {
     }
 
     /*
-     * This is the code for a new thread that plays an mp3 file.
+     * This is the code for a new thread that creates a Slider for duration control.
+     * Media, MediaPlayer and MediaView are asynchronous, so we must wait for the
+     * READY signal. Called (from Sound class) using "loaded.mp.setOnReady(loaded);"
+     * where "loaded" is the identifier of a Tune, so "loaded.mp" refers to its
+     * MediaPlayer.
      * 
      * @see java.lang.Runnable#run()
      */

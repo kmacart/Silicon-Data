@@ -30,8 +30,8 @@
 .grid-pane {
 	-fx-alignment: center;
 	-fx-padding: 1em;
-	-fx-hgap: 1em;
-	-fx-vgap: 1em;
+	-fx-hgap: 5px;
+	-fx-vgap: 5px;
 	-fx-border-style: solid inside line-join round;
 	-fx-border-color: -fx-border-light -fx-border-dark -fx-border-dark -fx-border-light;
 	-fx-border-width: 6;
@@ -199,17 +199,22 @@
 }
 #VolSlider {
 	-fx-orientation: horizontal;
+	-fx-major-tick-unit: 0.25;
+	-fx-block-increment: 1;
 }
 #VolSlider > .axis:bottom {
 	-fx-tick-label-font-size: 12px;
 }
 #TimeSlider {
 	-fx-orientation: horizontal;
+	-fx-major-tick-unit: 1;
+	-fx-block-increment: 1;
 }
 #TimeSlider > .axis:bottom {
 	-fx-tick-label-font-size: 12px;
 }
 .slider > .axis {
+	-fx-tick-label-font-size: 12px;
 	-fx-tick-label-fill: -fx-lightaqua;
 }
 .slider > .axis > .axis-tick-mark,

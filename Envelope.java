@@ -15,7 +15,7 @@
  * Constructors are provided for 4 Twains or 4 duration/level pairs.
  * The caller can also specify ADSHR (attack.duration, decay.duration, sustain.level, 
  * sustain.duration (Hold) and release.duration.
- * Durations are denominated in milliseconds, level in normalised volume (0.0d ... 1.0d)
+ * Durations are denominated in milliseconds, levels in normalised volume (0.0d ... 1.0d)
  * There is also an accessor method to get the total duration of a Tone
  */
 
@@ -51,6 +51,20 @@ public class Envelope {
 	createEnvArray();
     }
 
+    // Alternative constructor for Envelope Class - requires 2 arrays of 5 elements each:
+    // array[0] is ignored, then Attack[1], Decay[2], Sustain[3] and Release[4]
+    public Envelope(int[] durations, double[] levels) {
+	attack.duration = durations[1];
+	attack.level = levels[1];
+	decay.duration = durations[2];
+	decay.level = levels[2];
+	sustain.duration = durations[3];
+	sustain.level = levels[3];
+	release.duration = durations[4];
+	release.level = levels[4];
+	createEnvArray();
+    }
+
     // Alternative constructor for Envelope Class - requires Attack, Decay, Sustain,
     // Hold and Release. Attack, Decay, Hold and Release are all durations
     // (in milliseconds). Sustain is a level (0.0d ... 1.0d).
@@ -73,10 +87,10 @@ public class Envelope {
     }
 
     /*
-     * createEnvArray(): Creates an array of ADSR modulation factors (0.0 ... 1.0),
-     * one for each sample. The constructors call this method. However, as the array
-     * of factors is public, its contents may be accessed directly as
-     * Envelope.envArray[index].
+     * createEnvArray(): Creates an array of ADSR modulators (0.0 ... 1.0), one for
+     * each sample quanta. The constructors call this method. However, as the array
+     * of modulators is public, its contents can be accessed directly as (e.g.)
+     * env.envArray[index]. This should be more efficient for the calling method.
      */
     private void createEnvArray() {
 	int multiplier = Tone.getMultiplier();
@@ -100,14 +114,14 @@ public class Envelope {
 
 	// Sustain phase
 	step = (this.sustain.level - this.decay.level) / (this.sustain.duration * multiplier);
-	for (i = sample; i < this.sustain.duration * multiplier; i++) {
+	for (i = sample; i < sample + this.sustain.duration * multiplier; i++) {
 	    this.envArray[i] = this.envArray[i - 1] + step;
 	}
 	sample = i;
 
 	// Release phase
 	step = (this.release.level - this.sustain.level) / (this.release.duration * multiplier);
-	for (i = sample; i < this.release.duration * multiplier; i++) {
+	for (i = sample; i < sample + this.release.duration * multiplier; i++) {
 	    this.envArray[i] = this.envArray[i - 1] + step;
 	}
     }

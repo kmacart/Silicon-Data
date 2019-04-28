@@ -34,7 +34,7 @@ public class Player
    public Player(Color colour)
    {
 	   this.colour = colour;
-	   for(boolean ability: abilities)
+	   for(@SuppressWarnings("unused") boolean ability: abilities)
 	   {
 		   ability = false;
 	   }

@@ -1,25 +1,27 @@
-import java.io.File;
-import java.io.InputStream;
-import java.util.Scanner;
 import javafx.application.Application;
-import javafx.geometry.Insets;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 
 // GRP-COSC2635 2D
 //
@@ -36,299 +38,271 @@ import javafx.stage.StageStyle;
 // Application class. It includes the GameControl object that
 // manages the flow of the game.
 
-public class SiliconGame extends Application
-{
-	private Stage primaryStage;
-	private static GameControl gameControl;
-	private DisplaySetting display;
-	private SettingsScreen settings;
-	
-	// Display related constants and variables are initialised below;
-	final static int DEFAULT_SCREEN_WIDTH = 972;
-	final static int DEFAULT_SCREEN_HEIGHT = 648;
-	
-	private StackPane pane;
-	private LoadGame loader = new LoadGame();
-	private boolean gameLoaded;
-	private Label loadMessage = new Label();
-	
-	public void start(Stage stage)
-	{
-		display = new DisplaySetting();
-		settings = new SettingsScreen(stage);
-		
-		primaryStage = stage;
-		gameControl = new GameControl(this, primaryStage);
-		
-		// Set values to determine window width and height.
-		primaryStage.setWidth(DEFAULT_SCREEN_WIDTH);
-		primaryStage.setHeight(DEFAULT_SCREEN_HEIGHT);
-		primaryStage.setResizable(false);
-		primaryStage.centerOnScreen();
-        primaryStage.setTitle("Silicon");
-		
-		// Setup the title screen and set the stage
-		primaryStage.setScene(titleScene(this));
-		
-		// The following command will remove the window decoration
-		// primaryStage.initStyle(StageStyle.UNDECORATED);
-		
-		// Show stage/window and ensure primaryStage is active
-		primaryStage.show();
-		primaryStage.toFront();
-   }
-	
-   // The following method sets up the title screen at the beginning
-   // of the game
-   Scene titleScene(SiliconGame game)
-   {
-	   pane = new StackPane();
-	   // The program must find the frigate image on the file system
-	   try
-	   {
-	       Image backGround = new Image("images/titleScreen_alternative.jpg");
-	       ImageView imageView = new ImageView(backGround);
-	       imageView.setFitWidth(DEFAULT_SCREEN_WIDTH);
-	       imageView.setFitHeight(DEFAULT_SCREEN_HEIGHT);
-	       pane.getChildren().add(imageView);
-	   } catch (Exception ex)
-	   {
-	       System.out.println("Unable to load image - check file system.");
-	   }
-	   
-	   
-	   VBox titleButtons = new VBox(18);
-	   titleButtons.setAlignment(Pos.CENTER);
-	   titleButtons.setTranslateY(50.0);
-	   titleButtons.setMinSize(420, 480);
-	   titleButtons.setMaxSize(420, 480);
-	   
-	   // The buttons represent user options at the beginning of the game
-	   Button newGame = new Button("Start New Game");
-	   titleButtons.getChildren().add(newGame);
-	   Button loadGame = new Button("Load Game");
-	   titleButtons.getChildren().add(loadGame);
-	   Button highScores = new Button("High Scores");
-	   titleButtons.getChildren().add(highScores);
-	   Button settings = new Button("Settings");
-	   titleButtons.getChildren().add(settings);
-	   Button credits = new Button("Credits");
-	   titleButtons.getChildren().add(credits);
-	   Button quitGame = new Button("Quit Game");
-	   titleButtons.getChildren().add(quitGame);
-	   
-	   // Assign actions to each of the title screen buttons
-	   newGame.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   gameLoaded = false;
-		   loadMessage.setText("");
-		   GameBoard gameBoard = new GameBoard(game, primaryStage,
-				      gameControl, gameLoaded);
-	   });
-	   loadGame.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   loader.resetData();
-		   loadMessage.setText(loader.loadData());
-		   loader.createGame(game, primaryStage, gameControl);
-	   });
-	   highScores.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   loadMessage.setText("");
-		   primaryStage.setScene(highScoreScene(game));
-	   });
-	   settings.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   this.settings.showSettings(pane);
-	   });
-	   credits.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   primaryStage.setScene(creditsScene(game));
-	   });
-	   quitGame.setOnAction(e ->
-	   {
-		   new Thread(new Tone(262, 100)).start();
-		   primaryStage.close();
-	   });
-	   
-	   titleButtons.getChildren().add(loadMessage);
-	   pane.getChildren().add(titleButtons);
-	   Scene scene = new Scene(pane);
-	   scene.getStylesheets().add("data/Game.css");
-	   
-	   scene.setOnKeyPressed(e ->
-	   {
-		   if(e.getCode() == KeyCode.ESCAPE ||
-		      e.getCode() == KeyCode.Q)
-		   {
-			   quitGame.fire();
-		   } else if(e.getCode() == KeyCode.S)
-		   {
-			   newGame.fire();
-		   } else if(e.getCode() == KeyCode.L)
-		   {
-			   loadGame.fire();
-		   } else if(e.getCode() == KeyCode.H)
-		   {
-			   highScores.fire();
-		   }
-	   });
-	   
-	   return scene;
-   }
-   
-   // The following method sets up a scene to display the high
-   // score table
-   Scene highScoreScene(SiliconGame game)
-   {
-	   StackPane pane = new StackPane();
-	   
-	   // Attempt to load the high score background
-	   try
-	   {
-	       Image backGround = new Image("images/sunset.jpg");
-	       ImageView imageView = new ImageView(backGround);
-	       imageView.setFitWidth(DEFAULT_SCREEN_WIDTH);
-	       imageView.setFitHeight(DEFAULT_SCREEN_HEIGHT);
-	       pane.getChildren().add(imageView);
-	   } catch (Exception ex)
-	   {
-	       System.out.println("Unable to load image - check file system.");
-	       ex.printStackTrace();
-	   }
-	   
-	   
-	   
-	   VBox highScores = new VBox(50);
-	   highScores.setAlignment(Pos.CENTER);
-	   highScores.setMinWidth(300);
-	   highScores.setMinHeight(300);
-	   highScores.setMaxSize(300, 500);
-	   highScores.setStyle("-fx-background-color: transparent;"
-	   		+ "-fx-border-style: solid;" +
-			   "-fx-padding: 0px;" +
-	   		   "-fx-border-width: 0;" +
-			   "-fx-border-radius: 0");
-	   
-	   String high_score_data = "default";
-	   try
-	   {
-		   InputStream newFile =
-		      ClassLoader.getSystemResourceAsStream("data/high_scores.txt");
-		   Scanner scanner = new Scanner(newFile);
-		   high_score_data = scanner.nextLine();
-		   scanner.close();
+public class SiliconGame extends Application {
+    private Stage stage;
+    private Scene scene;
+    public BorderPane root;
+    private Button return2main;
+    private static GameControl gameControl;
+    private Monitor monitor;
+    private Settings settings;
 
-	   String[] h_values = high_score_data.split(",");
-	   
-	   Label highScore1 = new Label(h_values[0] + " " + h_values[2]);
-	   highScore1.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(highScore1);
-	   Label highScore2 = new Label(h_values[3] + " " + h_values[5]);
-	   highScore2.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(highScore2);
-	   Label highScore3 = new Label(h_values[6] + " " + h_values[8]);
-	   highScore3.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(highScore3);
-	   Label highScore4 = new Label(h_values[9] + " " + h_values[11]);
-	   highScore4.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(highScore4);
-	   Label highScore5 = new Label(h_values[12] + " " + h_values[14]);
-	   highScore5.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(highScore5);
-	   }catch(Exception ex)
-	   {
-	      System.out.println("Unable to load high scores - file error");
-	      Label error = new Label("Unable to load high scores - file error");
-	      error.setStyle("-fx-font: 20 Arial");
-	      highScores.getChildren().add(error);
-	   }
-	   
-	   Button returnMainMenu = new Button("Return to Main Menu");
-	   returnMainMenu.setStyle("-fx-font: 20 Arial");
-	   highScores.getChildren().add(returnMainMenu);
-	   returnMainMenu.setOnAction(e->
-	   {
-		  new Thread(new Tone(262, 100)).start();
-	      primaryStage.setScene(titleScene(game));
-	   });
-	   
-	   pane.getChildren().add(highScores);
-	   Scene scene = new Scene(pane);
-	   scene.getStylesheets().add("data/Game.css");
-	   
-	   scene.setOnKeyPressed(e ->
-	   {
-		   if(e.getCode() == KeyCode.ESCAPE)
-		   {
-			   returnMainMenu.fire();
-		   }
-	   });
-	   return scene;
-   }
-   
-   Scene creditsScene(SiliconGame game)
-   {
-	   StackPane pane = new StackPane();
-	   
-	   try
-	   {
-	       Image backGround = new Image("images/credits.jpg");
-	       ImageView imageView = new ImageView(backGround);
-	       imageView.setFitWidth(DEFAULT_SCREEN_WIDTH);
-	       imageView.setFitHeight(DEFAULT_SCREEN_HEIGHT);
-	       pane.getChildren().add(imageView);
-	   } catch (Exception ex)
-	   {
-	       System.out.println("Unable to load image - check file system.");
-	       ex.printStackTrace();
-	   }
-	   
-	   Button returnMainMenu = new Button("Return to Main Menu");
-	   returnMainMenu.getStylesheets().add("data/Game.css");
-	   returnMainMenu.setStyle("-fx-font: 20 Arial");
-	   returnMainMenu.setAlignment(Pos.CENTER);
-	   returnMainMenu.setTranslateY(220.0);
-	   returnMainMenu.setOnAction(e->
-	   {
-		  new Thread(new Tone(262, 100)).start();
-	      primaryStage.setScene(titleScene(game));
-	   });
-	   
-	   pane.getChildren().add(returnMainMenu);
-	   
-	   Scene scene = new Scene(pane);
-	   
-	   return scene;
-   }
-   
-   DisplaySetting getDisplaySetting()
-   {
-	   return display;
-   }
-   
-   SettingsScreen getSettings()
-   {
-	   return settings;
-   }
-   
-   boolean getGameLoaded()
-   {
-	   return gameLoaded;
-   }
-   
-   void setGameLoaded(boolean gameLoaded)
-   {
-	   this.gameLoaded = gameLoaded;
-   }
-   
-   // The main method launches the program
-   public static void main(String[] args)
-   {
-      Application.launch(args);
-   }
+    // Display related constants and variables are initialised below;
+    protected VBox showMainMenu = null;
+    protected StackPane startGame = null;
+    protected StackPane loadGame = null;
+    protected GridPane showSettings = null;
+    protected TextArea showHighScores = null;
+    protected ImageView showCredits = null;
+    protected TextArea showHelp = null;
+
+//    private LoadGame loader = new LoadGame();
+    private boolean gameLoaded;
+    private Label loadMessage = new Label();
+
+    /*
+     * JavaFX programs have a JavaFX application thread (labelled "start") that
+     * commences automatically. This is equivalent to the "main" method in a normal
+     * Java program. The loader passes a handle to the Stage window, to the JavaFX
+     * application, as a parameter to "start". Note that, once a JavaFX component
+     * has been displayed on the screen, you can only change it in the JavaFX
+     * application thread.
+     */
+    public void start(Stage primaryStage) {
+	// Get the dimensions of the user's primary screen and use 50% of its width and
+	// height to set the default dimensions of the Scene
+	monitor = new Monitor();
+	settings = new Settings(primaryStage, showSettings);
+
+	// Initialise the Stage
+	stage = primaryStage;
+	stage.setTitle("Silicon");
+	stage.initStyle(StageStyle.DECORATED);
+	stage.setResizable(false);
+	stage.centerOnScreen();
+
+	gameControl = new GameControl(this, stage);
+
+	// Create the Scene and Root, then import the JavaFX CSS Stylesheet into Scene.
+	// Root is a standard backdrop for every screen, with a background, logo and a
+	// set of navigation buttons.
+	root = createRoot(this);
+	scene = new Scene(root, Monitor.defaultWidth, Monitor.defaultHeight, Color.TRANSPARENT);
+	stage.setScene(scene);
+	scene.getStylesheets().add("SoundStyles.css");
+
+	// Create the main menu screen
+	showMainMenu = createMainMenu(this);
+
+	// Show the Stage and ensure it is active
+	this.stage.show();
+	this.stage.toFront();
+    }
+
+    /*
+     * Create the Root node (a BorderPane). The Root holds the background, main logo
+     * and sub-logo, and 4 x navigation buttons (for Settings, High Scores, Credits
+     * and Help). The left, center and bottom sections are free for individual
+     * screens to use. We switch between screens by swapping the contents of these
+     * sections in and out.
+     */
+    public BorderPane createRoot(SiliconGame game) {
+	root = new BorderPane();
+	root.setId("bp-root");
+//	root.setGridLinesVisible(true);
+
+	// Set the background image for Root to the initial (non-era) background
+	try {
+	    Image img = new Image("background_for_BIT.jpeg", Monitor.fullWidth, 0, true, true);
+	    BackgroundImage b = new BackgroundImage(img, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+		    BackgroundPosition.CENTER,
+		    new BackgroundSize(Monitor.defaultWidth, BackgroundSize.AUTO, false, false, true, false));
+	    root.setBackground(new Background(b));
+	} catch (Exception e) {
+	    System.out.println("SiliconGame Class (lines 116-120): Unable to load 'background_for_BIT.jpeg' - check file system.");
+	}
+
+	// Create the logo and sub-logo and add them both to Root. The JavaFX CSS file
+	// contains the text settings that make these logos work.
+	Text mainLogo = new Text("SILICON");
+	mainLogo.setId("main-logo");
+	Text subLogo = new Text("ERROR 404: TEAM NAME NOT FOUND");
+	subLogo.setId("sub-logo");
+	VBox vbLogo = new VBox(mainLogo, subLogo);
+	vbLogo.setId("VBox-invis");
+	BorderPane.setAlignment(vbLogo, Pos.TOP_CENTER);
+
+	// Create the "Return to Main Menu" button
+	return2main = new Button("Return to Main Menu");
+	return2main.setVisible(false);
+	BorderPane.setAlignment(return2main, Pos.BOTTOM_CENTER);
+
+	return2main.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    root.setCenter(showMainMenu);
+	    return2main.setVisible(false);
+	});
+
+	// Create a "dummy" VBox for root.Left
+	VBox vbDummy = new VBox();
+	vbDummy.setId("VBox-nav-buttons");
+	BorderPane.setAlignment(vbDummy, Pos.CENTER_LEFT);
+
+	// Create navigation buttons for Settings, High Scores, Credits and Help
+	Button bSettings = new Button("", new ImageView(new Image(getClass().getResourceAsStream("Settings.png"))));
+	bSettings.setId("button-round");
+	bSettings.setTooltip(new Tooltip("Press this button to adjust settings"));
+	Button bScores = new Button("High Scores");
+	bScores.setId("button-round");
+	bScores.setTooltip(new Tooltip("Press this button to see the High Score table"));
+	Button bCredits = new Button("Credits");
+	bCredits.setId("button-round");
+	bCredits.setTooltip(new Tooltip("Press this button to see the game credits"));
+	Button bHelp = new Button("Help");
+	bHelp.setId("button-round");
+	bHelp.setTooltip(new Tooltip("Press this button to view the Help file"));
+
+	// Create a VBox to hold the navigation buttons
+	VBox vbNavButtons = new VBox(bSettings, bScores, bCredits, bHelp);
+	vbNavButtons.setId("VBox-nav-buttons");
+	BorderPane.setAlignment(vbNavButtons, Pos.CENTER_RIGHT);
+
+	// Create a keyboard shortcut for each navigation button
+	root.setOnKeyPressed(e -> {
+	    if (e.getCode() == KeyCode.MULTIPLY) { // Settings = number pad "*"
+		bSettings.fire();
+	    } else if (e.getCode() == KeyCode.NUMPAD9) { // High Scores = number pad "9"
+		bScores.fire();
+	    } else if (e.getCode() == KeyCode.NUMPAD6) { // Credits = number pad "6"
+		bCredits.fire();
+	    } else if (e.getCode() == KeyCode.NUMPAD3) { // Help = number pad "3"
+		bHelp.fire();
+	    }
+	});
+
+	// Specify the actions for each navigation button (lambda definitions)
+	// *Settings*
+	bSettings.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    if (showSettings == null) {
+		showSettings = Settings.createSettingsScreen(stage, root);
+	    }
+	    BorderPane.setAlignment(showSettings, Pos.CENTER);
+	    root.setCenter(showSettings);
+	    return2main.setVisible(true);
+	});
+
+	// *High Scores*
+	bScores.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    if (showHighScores == null) {
+		showHighScores = HighScores.createHighScoresScreen();
+	    }
+	    BorderPane.setAlignment(showHighScores, Pos.CENTER);
+	    root.setCenter(showHighScores);
+	    return2main.setVisible(true);
+	});
+
+	// *Credits*
+	bCredits.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    if (showCredits == null) {
+		showCredits = Credits.createCreditsScreen();
+	    }
+	    BorderPane.setAlignment(showCredits, Pos.CENTER);
+	    root.setCenter(showCredits);
+	    return2main.setVisible(true);
+	});
+
+	// *Help*
+	bHelp.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    if (showHelp == null) {
+		showHelp = Help.createHelpScreen(root);
+	    }
+	    BorderPane.setAlignment(showHelp, Pos.CENTER);
+	    root.setCenter(showHelp);
+	    return2main.setVisible(true);
+	});
+
+	// Add everything to root
+	root.setTop(vbLogo);
+	root.setLeft(vbDummy);
+	root.setRight(vbNavButtons);
+	root.setBottom(return2main);
+	return root;
+    }
+
+    // The following method sets up the main menu at the beginning
+    // of the game
+    protected VBox createMainMenu(SiliconGame game) {
+	// Create main menu buttons for Start New Game, Load Game and Exit.
+	// Add the buttons to a visible VBox
+	Button newGame = new Button("Start New Game");
+	Button loadGame = new Button("Load Game");
+	Button exitGame = new Button("Exit Game");
+	showMainMenu = new VBox(newGame, loadGame, exitGame);
+	showMainMenu.getStyleClass().add("VBox");
+
+	// Define the actions for each main menu button
+	// *Start New Game*
+	newGame.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    gameLoaded = false;
+	    loadMessage.setText("");
+	    @SuppressWarnings("unused")
+	    GameBoard gameBoard = new GameBoard(game, stage, gameControl, gameLoaded);
+	});
+
+	// *Load Game*
+	loadGame.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+//	    loader.resetData();
+//	    loadMessage.setText(loader.loadData());
+//	    loader.createGame(game, stage, gameControl);
+	});
+
+	// *Exit*
+	exitGame.setOnAction(e -> {
+	    new Thread(new Tone(262, 100)).start();
+	    Platform.exit();
+	});
+
+	// Create a keyboard shortcut for each main menu button
+	showMainMenu.setOnKeyPressed(e -> {
+	    if (e.getCode() == KeyCode.ESCAPE || e.getCode() == KeyCode.Q) { // Exit = <ESC> or Q
+		exitGame.fire();
+	    } else if (e.getCode() == KeyCode.S) { // Start New Game = S
+		newGame.fire();
+	    } else if (e.getCode() == KeyCode.L) { // Load Game = L
+		loadGame.fire();
+	    }
+	});
+
+	// Add the main menu buttons to Root (Center section)
+	BorderPane.setAlignment(showMainMenu, Pos.CENTER);
+	root.setCenter(showMainMenu);
+	return showMainMenu;
+    }
+
+    Monitor getDisplaySetting() {
+	return monitor;
+    }
+
+    Settings getSettings() {
+	return settings;
+    }
+
+    boolean getGameLoaded() {
+	return gameLoaded;
+    }
+
+    void setGameLoaded(boolean gameLoaded) {
+	this.gameLoaded = gameLoaded;
+    }
+
+    // The main method launches the program
+    public static void main(String[] args) {
+	Application.launch(args);
+    }
 }

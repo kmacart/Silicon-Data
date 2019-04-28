@@ -1,6 +1,6 @@
 import java.util.ArrayList;
+
 import javafx.geometry.Rectangle2D;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 
@@ -23,6 +23,7 @@ public class AttackRoll
 {
    private GameBoard gameBoard;
    private GameControl gameControl;
+   @SuppressWarnings("unused")
    private Player currentPlayer;
    
    ArrayList<Location> locations;
